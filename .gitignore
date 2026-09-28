@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+
+# UV & Package Locks
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment Variables & Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# IDE Settings (keep settings.json if shared, ignore state)
+.vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+
+# Database / Containers
+*.sqlite3
+pgdata/
