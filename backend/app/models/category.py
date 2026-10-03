@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
