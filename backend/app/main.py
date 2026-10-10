@@ -1,6 +1,8 @@
-def main():
-    print("Hello from backend!")
+from fastapi import FastAPI
 
+from app.api.v1 import api_router
+from app.core.config import settings
 
-if __name__ == "__main__":
-    main()
+app = FastAPI()
+
+app.include_router(api_router, prefix=settings.api_v1_str)
