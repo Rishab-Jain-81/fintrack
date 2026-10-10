@@ -21,7 +21,7 @@ router = APIRouter(prefix="/categories", tags=["Categories"])
 
 
 @router.post(
-    "/categories",
+    "",
     response_model=CategoryResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a custom category",
@@ -97,7 +97,7 @@ async def get_category(
 
     query = select(Category).where(
         Category.id == category_id,
-        or_(Category.user_id == current_user.id, current_user.id.is_(None)),
+        or_(Category.user_id == current_user.id, Category.user_id.is_(None)),
     )
     result = await db.execute(query)
     category = result.scalar_one_or_none()
