@@ -2,7 +2,7 @@ import uuid
 from collections.abc import Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import asc, func, or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -34,8 +34,8 @@ async def create_category(
 
     normalized_name = category_in.name.strip()
     query = select(Category).where(
-        Category.user_id == current_user,
-        func.lower(Category.name == normalized_name.lower()),
+        Category.user_id == current_user.id,
+        func.lower(Category.name) == normalized_name.lower(),
     )
     result = await db.execute(query)
     if result.scalar_one_or_none():
@@ -47,7 +47,7 @@ async def create_category(
     category = Category(
         name=normalized_name,
         type=category_in.type,
-        icon=category_in.type,
+        icon=category_in.icon,
         color=category_in.color,
         user_id=current_user.id,
     )
@@ -76,9 +76,9 @@ async def list_categories(
     )
 
     if type_filter:
-        query = query.where(Category, type == type_filter)
+        query = query.where(Category.type == type_filter)
 
-    query = query.order_by(Category.name, asc())
+    query = query.order_by(Category.name.asc())
     result = await db.execute(query)
 
     return result.scalars().all()
@@ -104,7 +104,8 @@ async def get_category(
 
     if not category:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found.",
         )
 
     return category
@@ -128,10 +129,11 @@ async def update_category(
     if not category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Category not found",
+            detail="Category not found.",
         )
 
-    if Category.user_id != current_user.id:
+    # Prevent modification of system categories or categories owned by others
+    if category.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="System categories and categories owned by other users cannot be modified.",
@@ -140,15 +142,14 @@ async def update_category(
     update_data = category_in.model_dump(exclude_unset=True)
 
     if "name" in update_data and update_data["name"] is not None:
-        normalized_name = update_data["name"].stip()
+        normalized_name = update_data["name"].strip()
         conflict_query = select(Category).where(
             Category.user_id == current_user.id,
             Category.id != category_id,
             func.lower(Category.name) == normalized_name.lower(),
         )
-        conflict_result = db.execute(conflict_query)
-
-        if conflict_result.scalar_one_or_none():
+        conflict_res = await db.execute(conflict_query)
+        if conflict_res.scalar_one_or_none():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Another category with name '{normalized_name}' already exists.",
@@ -168,22 +169,23 @@ async def update_category(
 
 @router.delete(
     "/{category_id}",
-    summary="Delete a custom category",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a custom category",
 )
 async def delete_category(
     category_id: uuid.UUID,
     current_user: User = Depends(get_current_user),  # noqa: B008
     db: AsyncSession = Depends(get_db),  # noqa: B008
-):
+) -> None:
+    # 1. Fetch category
     query = select(Category).where(Category.id == category_id)
-    result = db.execute(query)
+    result = await db.execute(query)
     category = result.scalar_one_or_none()
 
     if not category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Category not found",
+            detail="Category not found.",
         )
 
     if category.user_id != current_user.id:
@@ -195,7 +197,8 @@ async def delete_category(
     tx_query = (
         select(Transaction.id).where(Transaction.category_id == category_id).limit(1)
     )
-    if tx_query.scalar_one_or_none():
+    tx_result = await db.execute(tx_query)
+    if tx_result.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Cannot delete category: it is referenced by existing transactions.",
