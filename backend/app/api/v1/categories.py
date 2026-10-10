@@ -168,7 +168,6 @@ async def update_category(
 
 @router.delete(
     "/{category_id}",
-    response_model=CategoryResponse,
     summary="Delete a custom category",
     status_code=status.HTTP_204_NO_CONTENT,
 )
