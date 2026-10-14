@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
 
-class Category(Base, TimestampMixin, UUIDMixin):
+class Category(TimestampMixin, UUIDMixin, Base):
     __tablename__ = "categories"
 
     user_id: Mapped[uuid.UUID | None] = mapped_column(

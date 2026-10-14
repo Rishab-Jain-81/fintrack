@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
 
-class User(Base, UUIDMixin, TimestampMixin):
+class User(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "users"
 
     email: Mapped[str] = mapped_column(
@@ -24,7 +24,7 @@ class User(Base, UUIDMixin, TimestampMixin):
     )
 
 
-class RefreshToken(Base, UUIDMixin):
+class RefreshToken(UUIDMixin, Base):
     __tablename__ = "refresh_token"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -37,11 +37,6 @@ class RefreshToken(Base, UUIDMixin):
     is_revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=datetime.now,
-        nullable=False,
     )
 
     # relationship

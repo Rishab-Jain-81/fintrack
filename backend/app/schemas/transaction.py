@@ -21,12 +21,10 @@ class TransactionBase(BaseModel):
     type: TransactionType = (
         Field(..., description="Flow of funds: 'income' or 'expense'"),
     )
-    description: str | None = (
-        Field(
-            default=None,
-            max_length=255,
-            description="Optional human-redable memo or note",
-        ),
+    description: str | None = Field(
+        default=None,
+        max_length=255,
+        description="Optional human-redable memo or note",
     )
     transaction_date: datetime = Field(
         ...,

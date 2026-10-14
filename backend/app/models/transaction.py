@@ -18,7 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
 
-class Transaction(Base, TimestampMixin, UUIDMixin):
+class Transaction(TimestampMixin, UUIDMixin, Base):
     __tablename__ = "transactions"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -33,7 +33,7 @@ class Transaction(Base, TimestampMixin, UUIDMixin):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    description: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(String(255), nullable=True)
 
     # relationships
     user: Mapped["User"] = relationship()  # pyright: ignore[reportUndefinedVariable] # noqa: F821

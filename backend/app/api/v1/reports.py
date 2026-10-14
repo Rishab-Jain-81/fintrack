@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -27,10 +27,11 @@ async def get_financial_summary(
     db: AsyncSession = Depends(get_db),  # noqa: B008
 ) -> FinancialSummaryResponse:
 
+    # 1. Totals Query
     totals_query = (
         select(
             Transaction.type,
-            func.coalesce(func.sum(Transaction.amount), Decimal("0.00")).label("total"),
+            func.coalesce(func.sum(Transaction.amount), 0).label("total"),
         )
         .where(
             Transaction.user_id == current_user.id,
@@ -40,11 +41,14 @@ async def get_financial_summary(
         .group_by(Transaction.type)
     )
     totals_result = await db.execute(totals_query)
-    totals_map = {row.type: row.total for row in totals_result.all()}
+    totals_map = {row.type: Decimal(str(row.total)) for row in totals_result.all()}
 
     total_income = totals_map.get("income", Decimal("0.00"))
     total_expense = totals_map.get("expense", Decimal("0.00"))
     net_savings = total_income - total_expense
+
+    # 2. Category Breakdown Query
+    total_spent_col = func.coalesce(func.sum(Transaction.amount), 0).label("amount")
 
     category_query = (
         select(
@@ -52,9 +56,7 @@ async def get_financial_summary(
             Category.name.label("category_name"),
             Category.color.label("category_color"),
             Category.icon.label("category_icon"),
-            func.coalesce(func.sum(Transaction.amount), Decimal("0.00")).label(
-                "amount"
-            ),
+            total_spent_col,
         )
         .join(Category, Transaction.category_id == Category.id)
         .where(
@@ -64,7 +66,7 @@ async def get_financial_summary(
             Transaction.transaction_date <= end_date,
         )
         .group_by(Category.id, Category.name, Category.color, Category.icon)
-        .order_by(func.sum(Transaction.amount).desc())
+        .order_by(desc(total_spent_col))
     )
     category_result = await db.execute(category_query)
     category_rows = category_result.all()
@@ -72,9 +74,9 @@ async def get_financial_summary(
     breakdown: list[CategoryBreakdownItem] = []
 
     for row in category_rows:
+        amount_decimal = Decimal(str(row.amount))
         if total_expense > Decimal("0.00"):
-            # Compute percentage with exact two-decimal precision
-            raw_pct = (row.amount / total_expense) * Decimal(100)
+            raw_pct = (amount_decimal / total_expense) * Decimal(100)
             percentage = raw_pct.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         else:
             percentage = Decimal("0.00")
@@ -85,7 +87,7 @@ async def get_financial_summary(
                 category_name=row.category_name,
                 category_color=row.category_color,
                 category_icon=row.category_icon,
-                amount=row.amount,
+                amount=amount_decimal,
                 percentage=percentage,
             )
         )

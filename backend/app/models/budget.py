@@ -14,7 +14,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
 
-class Budget(Base, TimestampMixin, UUIDMixin):
+class Budget(TimestampMixin, UUIDMixin, Base):
     __tablename__ = "budgets"
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True

@@ -172,13 +172,17 @@ async def refresh_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    if not user.is_active or db_token.expires_at < datetime.now(timezone.utc):
+    expires_at = db_token.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+    if not user.is_active or expires_at < datetime.now(timezone.utc):
         response.delete_cookie(
             key="refresh_token",
             path=f"{settings.api_v1_str}/auth",
         )
         raise HTTPException(
-            status_code="401_UNAUTHORIZED",
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token expired or user inactive.",
         )
 

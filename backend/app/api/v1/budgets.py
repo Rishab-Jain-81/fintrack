@@ -27,6 +27,7 @@ router = APIRouter(prefix="/budgets", tags=["Budgets"])
 @router.post(
     "",
     response_model=BudgetResponse,
+    status_code=status.HTTP_201_CREATED,
     summary="Create a budget",
 )
 async def create_budget(
@@ -218,16 +219,17 @@ async def get_budget(
     )
 
     amount_query = select(
-        func.coalesce(func.sum(Transaction.amount), Decimal("0.00"))
-        .label("total_spent")
-        .where(
-            Transaction.user_id == current_user.id,
-            Transaction.category_id == budget.category_id,
-            Transaction.type == "expense",
-            Transaction.transaction_date >= start_date,
-            Transaction.transaction_date <= end_date,
+        func.coalesce(func.sum(Transaction.amount), Decimal("0.00")).label(
+            "total_spent"
         )
+    ).where(
+        Transaction.user_id == current_user.id,
+        Transaction.category_id == budget.category_id,
+        Transaction.type == "expense",
+        Transaction.transaction_date >= start_date,
+        Transaction.transaction_date <= end_date,
     )
+
     amount_result = await db.execute(amount_query)
     spent_amount = amount_result.scalar_one_or_none()
 
