@@ -39,7 +39,7 @@ class Settings(BaseSettings):
 
     redis_url: str
 
-    allowed_origins: list[str]
+    allowed_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 
 @lru_cache

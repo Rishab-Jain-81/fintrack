@@ -86,15 +86,15 @@ async def login(
     raw_refresh = generate_refresh_token()
     hash_refresh_token = hash_token(raw_refresh)
     family_id = uuid.uuid4()
-    expires_at = datetime.now(timezone.utc) + timedelta(
-        days=settings.refresh_token_expire_days
-    )
+    now_utc = datetime.now(timezone.utc)
+    expires_at = now_utc + timedelta(days=settings.refresh_token_expire_days)
 
     refresh_token = RefreshToken(
         user_id=user.id,
         token_hash=hash_refresh_token,
         family_id=family_id,
         expires_at=expires_at,
+        created_at=now_utc,
     )
 
     db.add(refresh_token)

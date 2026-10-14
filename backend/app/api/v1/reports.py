@@ -1,7 +1,9 @@
 from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 
-from fastapi import APIRouter, Depends, Query
+from celery.result import AsyncResult
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi.responses import JSONResponse
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +12,13 @@ from app.core.database import get_db
 from app.models.category import Category
 from app.models.transaction import Transaction
 from app.models.user import User
-from app.schemas.report import CategoryBreakdownItem, FinancialSummaryResponse
+from app.schemas.report import (
+    CategoryBreakdownItem,
+    ExportTaskResponse,
+    FinancialSummaryResponse,
+)
+from app.tasks.celery_app import celery_app
+from app.tasks.export_task import export_transactions_csv
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
@@ -100,3 +108,54 @@ async def get_financial_summary(
         net_savings=net_savings,
         breakdown_by_category=breakdown,
     )
+
+
+@router.post(
+    "/export",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="export report in different formats(csv, etc...)",
+)
+async def export_reports_csv(
+    start_date: datetime = Query(..., description="Start of date range (UTC)"),  # noqa: B008
+    end_date: datetime = Query(..., description="End of date range (UTC)"),  # noqa: B008
+    current_user: User = Depends(get_current_user),  # noqa: B008
+    db: AsyncSession = Depends(get_db),  # noqa: B008
+) -> ExportTaskResponse:
+
+    task = export_transactions_csv.delay(
+        str(current_user.id),
+        start_date.isoformat(),
+        end_date.isoformat(),
+    )
+
+    return ExportTaskResponse(task_id=task.id, status=task.status)
+
+
+@router.get(
+    "/export/{task_id}",
+    summary="check export status & download if status success",
+)
+async def get_export_status(
+    task_id: str,
+    current_user: User = Depends(get_current_user),  # noqa: B008
+) -> Response:
+    task_result = AsyncResult(task_id, app=celery_app)
+    if task_result.status == "FAILURE":
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Export generation failed.",
+        )
+    if task_result.status == "PENDING" or task_result.status == "STARTED":
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"task_id": task_id, "status": task_result.status},
+        )
+
+    if task_result.status == "SUCCESS":
+        return Response(
+            content=task_result.result,
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename=transactions_export_{task_id}.csv"
+            },
+        )

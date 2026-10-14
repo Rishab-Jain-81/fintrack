@@ -25,3 +25,8 @@ class FinancialSummaryResponse(BaseModel):
     breakdown_by_category: list[CategoryBreakdownItem]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ExportTaskResponse(BaseModel):
+    task_id: str
+    status: str
