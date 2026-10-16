@@ -1,5 +1,6 @@
 import os
 
+os.environ["ENVIRONMENT"] = "test"
 os.environ["SQLALCHEMY_WARN_20"] = "1"
 os.environ["AIOPS_NO_CYTHON"] = "1"
 os.environ["SQLALCHEMY_DISABLE_CYTHON"] = "1"
@@ -102,7 +103,7 @@ async def test_user_token(client: AsyncClient) -> str:
         "username": user_payload["email"],
         "password": user_payload["password"],
     }
-    login_res = await client.post("api/v1/auth/login", data=login_data)
+    login_res = await client.post("/api/v1/auth/login", data=login_data)
 
     assert login_res.status_code == 200
 
