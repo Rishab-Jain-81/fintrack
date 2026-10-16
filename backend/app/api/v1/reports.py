@@ -2,13 +2,14 @@ from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 
 from celery.result import AsyncResult
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
+from app.core.limiter import limiter
 from app.models.category import Category
 from app.models.transaction import Transaction
 from app.models.user import User
@@ -115,7 +116,9 @@ async def get_financial_summary(
     status_code=status.HTTP_202_ACCEPTED,
     summary="export report in different formats(csv, etc...)",
 )
+@limiter.limit("3/minute;10/hour;25/day")
 async def export_reports_csv(
+    request: Request,
     start_date: datetime = Query(..., description="Start of date range (UTC)"),  # noqa: B008
     end_date: datetime = Query(..., description="End of date range (UTC)"),  # noqa: B008
     current_user: User = Depends(get_current_user),  # noqa: B008
