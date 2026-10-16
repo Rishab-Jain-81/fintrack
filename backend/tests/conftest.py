@@ -22,10 +22,13 @@ from collections.abc import AsyncGenerator
 
 import pytest_asyncio
 from app.core.database import get_db
+from app.core.limiter import limiter
 from app.main import app
 from app.models import Base
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+limiter.enabled = False
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -70,6 +73,7 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
 @pytest_asyncio.fixture
 async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+    app.state.limiter.enabled = False
     # Set override
     app.dependency_overrides[get_db] = lambda: db_session
 
