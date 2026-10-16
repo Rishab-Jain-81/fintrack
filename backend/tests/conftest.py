@@ -12,7 +12,7 @@ os.environ["POSTGRE_PORT"] = "5432"
 os.environ["POSTGRE_USER"] = "postgres"
 os.environ["POSTGRE_PASSWORD"] = "postgres"
 os.environ["JWT_SECRET_KEY"] = "super-secret-test-key-32-chars-long-minimum!"
-os.environ["REDIS_URL"] = "redis://localhost:6379/0"
+os.environ["REDIS_URL"] = "memory://"
 os.environ["ALLOWED_ORIGINS"] = '["http://localhost:3000"]'
 
 
@@ -29,6 +29,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 limiter.enabled = False
+app.state.limiter.enabled = False
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
