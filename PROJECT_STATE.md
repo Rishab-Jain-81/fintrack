@@ -66,7 +66,7 @@
 
 - [x] Scaffolding: Vite + React (JavaScript) initialized in frontend/.
 - [x] Styling: Tailwind CSS v4 configured with @tailwindcss/vite and verified.
-- [ ] API Client (src/api/client.js): Axios instance with request token injection and 401 refresh interceptor.
-- [ ] Auth State (src/context/AuthContext.jsx): Centralized auth context with memory-stored access token and user state.
+- [x] API Client (src/api/client.js): Axios instance with request token injection and 401 refresh interceptor.
+- [x] Auth State (src/context/AuthContext.jsx): Centralized auth context with memory-stored access token and user state.
 - [ ] Routing: Public (/login, /register) and protected routes (/, /transactions, /budgets, /reports).
 - [ ] Dashboard View: Monthly KPI cards, expense distribution chart (Recharts), and recent activity feed.
