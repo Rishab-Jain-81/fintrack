@@ -14,10 +14,8 @@ export default function LoginPage() {
     e.preventDefault();
     setErrorMessage("");
     setIsSubmitting(true);
-    console.log(formData);
 
     try {
-      console.log(formData);
       await login(formData.email, formData.password);
       navigate("/");
     } catch (err) {
@@ -58,7 +56,7 @@ export default function LoginPage() {
               placeholder="johnDoe@example.com"
               value={formData.email}
               onChange={handleChange}
-              className="email border-2 border-slate-600 bg-slate-700 rounded-md pl-1 placeholder:text-sm focus:outline-0 focus:border-slate-500"
+              className="border-2 border-slate-600 bg-slate-700 rounded-md pl-1 placeholder:text-sm focus:outline-0 focus:border-slate-500"
             />
           </div>
 
@@ -75,7 +73,7 @@ export default function LoginPage() {
               required
               value={formData.password}
               onChange={handleChange}
-              className="email border-2 border-slate-600 bg-slate-700 rounded-md pl-1 placeholder:text-sm focus:outline-0 focus:border-slate-500"
+              className="border-2 border-slate-600 bg-slate-700 rounded-md pl-1 placeholder:text-sm focus:outline-0 focus:border-slate-500"
             />
           </div>
           <div>
