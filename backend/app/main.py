@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -8,6 +9,21 @@ from app.core.config import settings
 from app.core.limiter import limiter
 
 app = FastAPI()
+
+app.state.limiter = limiter
+
+
+app.add_middleware(SlowAPIMiddleware)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins,
+    allow_credentials=True,  # Mandatory for HTTP-only cookies!
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app.include_router(api_router, prefix=settings.api_v1_str)
 
@@ -19,9 +35,7 @@ def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded) -> Respo
     )
 
 
-app.state.limiter = limiter
 app.add_exception_handler(
     RateLimitExceeded,
     custom_rate_limit_handler,
 )
-app.add_middleware(SlowAPIMiddleware)
