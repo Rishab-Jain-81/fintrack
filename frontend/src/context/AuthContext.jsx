@@ -45,7 +45,9 @@ export function AuthProvider({ children }) {
       password: password,
     });
 
-    const { data } = await apiClient.post("/auth/login", formData);
+    const { data } = await apiClient.post("/auth/login", formData, {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    });
     setAccessToken(data.access_token);
 
     const userRes = await apiClient.get("/auth/me");
