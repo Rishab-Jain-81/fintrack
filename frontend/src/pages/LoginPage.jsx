@@ -7,7 +7,6 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
-  // eslint-disable-next-line no-unused-vars
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
