@@ -193,15 +193,15 @@ async def refresh_access_token(
 
     new_raw_refresh = generate_refresh_token()
     new_hash_refresh_token = hash_token(new_raw_refresh)
-    new_expires_at = datetime.now(timezone.utc) + timedelta(
-        days=settings.refresh_token_expire_days
-    )
+    now_utc = datetime.now(timezone.utc)
+    new_expires_at = now_utc + timedelta(days=settings.refresh_token_expire_days)
 
     new_token = RefreshToken(
         user_id=user.id,
         token_hash=new_hash_refresh_token,
         family_id=db_token.family_id,
         expires_at=new_expires_at,
+        created_at=now_utc,
     )
     db.add(new_token)
     await db.commit()
