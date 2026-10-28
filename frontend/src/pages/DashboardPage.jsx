@@ -91,7 +91,7 @@ export default function DashboardPage() {
           </div>
           <div className="lg:col-span-5 xl:col-span-4">
             {recentTransactions?.isLoading ? (
-              <div className="h-95 animate-pulse rounded-xl border border-slate-800/60 bg-slate-900/50" />
+              <div className="h-95 animate-pulse rounded-xl border border-slate-800/60 bg-slate-800/50" />
             ) : (
               <RecentTransactionsCard data={recentTransactions?.data} />
             )}
