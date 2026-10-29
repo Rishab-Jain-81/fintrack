@@ -1,15 +1,16 @@
 import { ReceiptText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatCurrency, formatDate } from "../../utility/formatFunctions";
-import { ArrowDownLeft, ArrowUpRight, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { CategoryIcon } from "../category/CategoryIcon";
 
 export const RecentTransactionsCard = ({ data = [] }) => {
   const sanitizedData = data.map((transaction) => ({
     ...transaction,
     amount: formatCurrency(transaction.amount),
     transaction_date: formatDate(transaction.transaction_date),
-    isIncome: transaction.type.toLowerCase() == "income" ? true : false,
   }));
+  console.log(sanitizedData);
   return (
     <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-slate-700 hover:bg-slate-900/80">
       <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
@@ -38,39 +39,41 @@ export const RecentTransactionsCard = ({ data = [] }) => {
                 <div className="flex items-center justify-between py-3.5 px-3.5 transition-colors duration-150 hover:bg-slate-800/20 bg-slate-800/40 rounded-lg">
                   <div className="flex items-center gap-2 min-w-0 ">
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
-                        transaction.isIncome
-                          ? "bg-emerald-500/10 text-emerald-400"
-                          : "bg-rose-500/10 text-rose-400"
-                      }`}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                      style={{
+                        backgroundColor: `${transaction.category.color || "#10B981"}20`,
+                        color: transaction.category.color || "#10B981",
+                      }}
                     >
-                      {transaction.isIncome ? (
-                        <ArrowDownLeft size={18} />
-                      ) : (
-                        <ArrowUpRight size={18} />
-                      )}
+                      <CategoryIcon
+                        name={transaction.category.icon}
+                        size={20}
+                      />
                     </div>
 
                     <div className="flex flex-col min-w-0">
                       <span className="truncate text-lg font-medium text-slate-200">
-                        {transaction.description || "Transaction"}
+                        {transaction.category.name}
                       </span>
-                      <span className="text-xs text-slate-500">
-                        {transaction.transaction_date}
+                      <span className="text-sm text-slate-500">
+                        {transaction.description || "Transaction"}
                       </span>
                     </div>
                   </div>
 
-                  <div className="ml-4 shrink-0 text-right">
+                  <div className="ml-4 shrink-0 text-right flex flex-col">
                     <span
                       className={`text-lg font-semibold tracking-tight ${
-                        transaction.isIncome
+                        transaction.type == "income"
                           ? "text-emerald-400"
                           : "text-rose-400"
                       }`}
                     >
-                      {transaction.isIncome ? "+" : "-"}
+                      {transaction.type == "income" ? "+" : "-"}
                       {transaction.amount}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {transaction.transaction_date}
                     </span>
                   </div>
                 </div>
