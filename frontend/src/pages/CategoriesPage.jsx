@@ -112,11 +112,13 @@ export default function CategoriesPage() {
             onClick={() => {
               (setIsModalOpen(true), setEditingCategory(null));
             }}
-            className="absolute top-5 right-6 inline-flex items-center justify-center gap-2 rounded-3xl sm:rounded-xl bg-slate-400/50 p-1 sm:px-2 sm:py-1.5 text-xs text-slate-950 transition-colors hover:bg-slate-400 hover:text-black font-bold"
+            className="group absolute top-5 right-6 inline-flex items-center justify-center gap-2 rounded-3xl sm:rounded-xl bg-slate-400/50 p-1 sm:px-2 sm:py-1.5 text-xs text-slate-950 transition-colors hover:bg-slate-400 hover:text-black font-bold"
             title="Add Category"
           >
+            <span className="hidden group-hover:inline group-hover:pl-1 sm:inline">
+              Add Category
+            </span>
             <Plus size={28} />
-            <span className="hidden sm:inline">Add Category</span>
           </button>
 
           {customCategories.length == 0 ? (
@@ -152,23 +154,29 @@ export default function CategoriesPage() {
                             </span>
                           </div>
                         </div>
-                        <div className="flex  h-8">
+                        <div className="flex flex-col mt-1 h-8 justify-center">
                           <button
                             onClick={() => {
                               (setIsModalOpen(true),
                                 setEditingCategory(category));
                             }}
-                            className="rounded-lg p-1.5 text-slate-500 opacity-0 transition-all hover:bg-emerald-500/10 hover:text-emerald-400 group-hover:opacity-100 disabled:opacity-50"
+                            className="group/edit relative flex gap-2 rounded-lg p-1.5 items-center text-slate-500 opacity-0 transition-all hover:bg-emerald-500/10 hover:text-emerald-400 group-hover:opacity-100 disabled:opacity-50"
                             title="Edit Category"
                           >
                             <Pencil size={18} />
+                            <span className="absolute left-full mr-2 hidden group-hover/edit:inline group-hover/edit:pl-1 text-xs">
+                              Edit
+                            </span>
                           </button>
                           <button
                             onClick={() => handleDelete(category.id)}
                             disabled={deleteMutation.isPending}
-                            className="rounded-lg p-1.5 text-slate-500 opacity-0 transition-all hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100 disabled:opacity-50"
+                            className="group/delete relative flex gap-2 rounded-lg p-1.5 text-slate-500 opacity-0 transition-all hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100 disabled:opacity-50"
                             title="Delete Category"
                           >
+                            <span className="absolute left-full mr-2 hidden group-hover/delete:inline group-hover/delete:pl-1 text-xs">
+                              Delete
+                            </span>
                             <Trash2 size={18} />
                           </button>
                         </div>
