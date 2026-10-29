@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
@@ -61,7 +62,7 @@ async def create_transaction(
 
     db.add(transaction)
     await db.commit()
-    await db.refresh(transaction)
+    await db.refresh(transaction, attribute_names=["category"])
 
     return transaction
 
@@ -77,7 +78,11 @@ async def get_transactions(
     db: AsyncSession = Depends(get_db),  # noqa: B008
 ) -> Sequence[Transaction]:
 
-    query = select(Transaction).where(Transaction.user_id == current_user.id)
+    query = (
+        select(Transaction)
+        .options(selectinload(Transaction.category))
+        .where(Transaction.user_id == current_user.id)
+    )
 
     if filter.start_date:
         query = query.where(Transaction.transaction_date >= filter.start_date)
@@ -113,9 +118,13 @@ async def get_transaction(
     current_user: User = Depends(get_current_user),  # noqa: B008
     db: AsyncSession = Depends(get_db),  # noqa: B008
 ) -> Transaction:
-    query = select(Transaction).where(
-        Transaction.user_id == current_user.id,
-        Transaction.id == transaction_id,
+    query = (
+        select(Transaction)
+        .options(selectinload(Transaction.category))
+        .where(
+            Transaction.user_id == current_user.id,
+            Transaction.id == transaction_id,
+        )
     )
     result = await db.execute(query)
     transaction = result.scalar_one_or_none()
@@ -168,9 +177,13 @@ async def update_transaction(
     current_user: User = Depends(get_current_user),  # noqa: B008
     db: AsyncSession = Depends(get_db),  # noqa: B008
 ) -> Transaction:
-    query = select(Transaction).where(
-        Transaction.user_id == current_user.id,
-        Transaction.id == transaction_id,
+    query = (
+        select(Transaction)
+        .options(selectinload(Transaction.category))
+        .where(
+            Transaction.user_id == current_user.id,
+            Transaction.id == transaction_id,
+        )
     )
 
     result = await db.execute(query)
@@ -213,6 +226,6 @@ async def update_transaction(
         setattr(transaction, field, value)
 
     await db.commit()
-    await db.refresh(transaction)
+    await db.refresh(transaction, attribute_names=["category"])
 
     return transaction

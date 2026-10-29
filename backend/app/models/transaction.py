@@ -37,7 +37,7 @@ class Transaction(TimestampMixin, UUIDMixin, Base):
 
     # relationships
     user: Mapped["User"] = relationship()  # pyright: ignore[reportUndefinedVariable] # noqa: F821
-    category: Mapped["Category"] = relationship()  # pyright: ignore[reportUndefinedVariable]  # noqa: F821
+    category: Mapped["Category"] = relationship(lazy="selectin")  # pyright: ignore[reportUndefinedVariable]  # noqa: F821
 
     __table_args__ = (
         CheckConstraint("amount > 0", name="valid_transaction_amount"),

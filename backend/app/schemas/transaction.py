@@ -8,23 +8,29 @@ from pydantic import BaseModel, ConfigDict, Field
 TransactionType = Literal["income", "expense"]
 
 
+class CategorySummary(BaseModel):
+    id: uuid.UUID
+    name: str
+    type: str
+    icon: str
+    color: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class TransactionBase(BaseModel):
-    amount: Decimal = (
-        Field(
-            ...,
-            gt=0,
-            max_digits=12,
-            decimal_places=2,
-            description="Transaction amount, must be positive with at most 2 decimal places",
-        ),
+    amount: Decimal = Field(
+        ...,
+        gt=0,
+        max_digits=12,
+        decimal_places=2,
+        description="Transaction amount, must be positive with at most 2 decimal places",
     )
-    type: TransactionType = (
-        Field(..., description="Flow of funds: 'income' or 'expense'"),
+    type: TransactionType = Field(
+        ..., description="Flow of funds: 'income' or 'expense'"
     )
     description: str | None = Field(
-        default=None,
-        max_length=255,
-        description="Optional human-redable memo or note",
+        default=None, max_length=255, description="Optional human-redable memo or note"
     )
     transaction_date: datetime = Field(
         ...,
@@ -61,6 +67,8 @@ class TransactionResponse(TransactionBase):
     user_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+
+    category: CategorySummary | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
