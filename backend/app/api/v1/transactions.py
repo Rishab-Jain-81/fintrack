@@ -226,6 +226,10 @@ async def update_transaction(
         setattr(transaction, field, value)
 
     await db.commit()
-    await db.refresh(transaction, attribute_names=["category"])
-
-    return transaction
+    refreshed_query = (
+        select(Transaction)
+        .options(selectinload(Transaction.category))
+        .where(Transaction.id == transaction_id)
+    )
+    refreshed_result = await db.execute(refreshed_query)
+    return refreshed_result.scalar_one()

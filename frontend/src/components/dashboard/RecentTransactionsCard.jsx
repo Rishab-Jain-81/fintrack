@@ -10,7 +10,6 @@ export const RecentTransactionsCard = ({ data = [] }) => {
     amount: formatCurrency(transaction.amount),
     transaction_date: formatDate(transaction.transaction_date),
   }));
-  console.log(sanitizedData);
   return (
     <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-slate-700 hover:bg-slate-900/80">
       <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">

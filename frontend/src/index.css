@@ -23,3 +23,15 @@
   scrollbar-width: thin;
   scrollbar-color: #334155 #0f172a;
 }
+
+@layer base {
+  input[type="number"] {
+    appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+  }
+}
