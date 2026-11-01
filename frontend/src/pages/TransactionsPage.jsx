@@ -126,12 +126,12 @@ export default function TransactionsPage() {
         })}
       </div>
       <div className="rounded-xl w-full border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-sm sm:max-w-[80%] lg:max-w-[70%] mx-auto">
-        <h3 className="text-lg text-slate-400 font-semibold">
+        <h3 className="text-lg text-slate-400 font-semibold mb-1">
           Filter Transactions
         </h3>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex flex-row gap-1.5 items-center">
+            <div className="flex flex-col sm:flex-row gap-1.5 sm:items-center items-start">
               <label className="text-xs font-medium  tracking-wider text-slate-400">
                 By Category
               </label>
@@ -141,7 +141,7 @@ export default function TransactionsPage() {
                   setSelectedCategoryId(e.target.value);
                   setPage(1);
                 }}
-                className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-200 focus:border-emerald-500/70 focus:outline-none"
+                className="rounded-lg border border-slate-800 bg-slate-950 px-2 sm:px-3 py-1.5 sm:py-2 text-xs text-slate-200 focus:border-emerald-500/70 focus:outline-none"
               >
                 <option value="">Select Category</option>
                 {categories.map((cat) => (
@@ -152,33 +152,35 @@ export default function TransactionsPage() {
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex flex-row gap-1.5 items-center">
+              <div className="flex flex-col sm:flex-row gap-1.5 sm:items-center items-start">
                 <label className="text-xs font-medium  tracking-wider text-slate-400">
                   Date Range
                 </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value);
-                    setPage(1);
-                  }}
-                  style={{ colorScheme: "dark" }}
-                  className="rounded-lg border border-slate-800 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-500/70 focus:outline-none"
-                  title="Start Date"
-                />
-                <span className="text-xs text-slate-500">to</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value);
-                    setPage(1);
-                  }}
-                  style={{ colorScheme: "dark" }}
-                  className="rounded-lg border border-slate-800 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-500/70 focus:outline-none"
-                  title="End Date"
-                />
+                <div className="flex items-center sm:gap-2 gap-1">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      setPage(1);
+                    }}
+                    style={{ colorScheme: "dark" }}
+                    className="rounded-lg border border-slate-800 bg-slate-950 px-1 sm:px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-500/70 focus:outline-none"
+                    title="Start Date"
+                  />
+                  <span className="text-xs text-slate-500">to</span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => {
+                      setEndDate(e.target.value);
+                      setPage(1);
+                    }}
+                    style={{ colorScheme: "dark" }}
+                    className="rounded-lg border border-slate-800 bg-slate-950 px-1 sm:px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-500/70 focus:outline-none"
+                    title="End Date"
+                  />
+                </div>
               </div>
             </div>
             <div>
@@ -261,7 +263,7 @@ export default function TransactionsPage() {
                         >
                           <div className="group relative flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-slate-700 hover:bg-slate-900/80">
                             <div className="flex items-start align-middle justify-between gap-3">
-                              <div className="flex items-center gap-3 min-w-0">
+                              <div className="flex flex-row items-center gap-2 sm:gap-3 min-w-0">
                                 <div
                                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105"
                                   style={{
@@ -276,15 +278,15 @@ export default function TransactionsPage() {
                                   />
                                 </div>
                                 <div className="flex flex-col min-w-0">
-                                  <span className="truncate font-medium text-slate-200">
+                                  <span className=" font-medium text-slate-200">
                                     {transaction.category.name}
                                   </span>
-                                  <span className="text-sm text-slate-500">
+                                  <span className="truncate text-sm text-slate-500">
                                     {transaction.description || ""}
                                   </span>
                                 </div>
                               </div>
-                              <div className="ml-4 shrink-0 text-right flex flex-col">
+                              <div className="ml-4 shrink-0 text-right flex flex-col ">
                                 <span
                                   className={`text-lg font-semibold tracking-tight ${
                                     transaction.type == "income"
