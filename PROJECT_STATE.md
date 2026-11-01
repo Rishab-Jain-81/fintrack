@@ -68,5 +68,9 @@
 - [x] Styling: Tailwind CSS v4 configured with @tailwindcss/vite and verified.
 - [x] API Client (src/api/client.js): Axios instance with request token injection and 401 refresh interceptor.
 - [x] Auth State (src/context/AuthContext.jsx): Centralized auth context with memory-stored access token and user state.
-- [ ] Routing: Public (/login, /register) and protected routes (/, /transactions, /budgets, /reports).
-- [ ] Dashboard View: Monthly KPI cards, expense distribution chart (Recharts), and recent activity feed.
+- [x] Routing: Public (/login, /register) and protected routes (/, /transactions, /budgets, /reports).
+- [x] Dashboard View: Monthly KPI cards, expense distribution chart (Recharts), and recent activity feed.
+- [x] Transactions Page: Transaction records with filters, Create, Edit, and Delete features.
+- [x] Category Page: Default and Custom Categories list, Create, Edit, and Delete features.
+- [] Reports Page: Full Report of all transactions with filter by date range, Export as CSV feature.
+- [] Budgets Page: Existing Budgets card, Create, Edit and Delete features.
