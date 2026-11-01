@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   const recentTransactions = useQuery({
     queryKey: ["transactions", "recent"],
-    queryFn: () => getTransactions(),
+    queryFn: () => getTransactions({ limit: 5 }),
   });
 
   return (

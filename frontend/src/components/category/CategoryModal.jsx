@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { X, AlertCircle } from "lucide-react";
-import { createCategory, updateCategory } from "../../api/category";
+import { X, AlertCircle, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import {
+  createCategory,
+  deleteCategory,
+  updateCategory,
+} from "../../api/category";
 import { categoryIconNames } from "../../utility/category/categoryIconCatalog";
 import { CategoryIcon } from "./CategoryIcon";
 import "lucide-react";
@@ -86,6 +90,30 @@ export const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (categoryId) => deleteCategory({ category_id: categoryId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["reports", "summary"] });
+      handleClose();
+    },
+    onError: (err) => {
+      setError(extractErrorMessage(err, "Failed to delete category."));
+    },
+  });
+
+  const handleDelete = () => {
+    if (!categoryToEdit) return;
+    if (window.confirm("Are you sure you want to delete this category?")) {
+      deleteMutation.mutate(categoryToEdit.id);
+    }
+  };
+
+  const isPending =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
@@ -134,34 +162,31 @@ export const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
             <X size={20} />
           </button>
         </div>
-        <div className="mt-4 flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-950/40 p-3.5">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors duration-200"
-              style={{
-                backgroundColor: `${color}20`,
-                color: color,
-              }}
-            >
-              <CategoryIcon name={icon} size={22} />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="truncate text-base font-medium text-slate-200">
-                {name.trim() || "Category Name"}
-              </span>
-              <span className="text-xs text-slate-500">Live preview</span>
+
+        <div className="mt-4 rounded-xl border border-slate-800/80 bg-slate-950/40 p-3.5">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            Live Preview
+          </span>
+          <div className="mt-2 flex items-center justify-between rounded-lg border border-slate-800/60 bg-slate-900/80 p-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all"
+                style={{
+                  backgroundColor: `${color}20`,
+                  color: color,
+                }}
+              >
+                <CategoryIcon name={icon} size={20} />
+              </div>
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-medium text-slate-200">
+                  {name.trim() || "Category Name"}
+                </span>
+              </div>
             </div>
           </div>
-          <span
-            className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide uppercase ${
-              type === "income"
-                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-            }`}
-          >
-            {type}
-          </span>
         </div>
+
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           {error && (
             <div className="flex items-center gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 p-2.5 text-xs text-rose-400">
@@ -187,27 +212,30 @@ export const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
             <label className="text-xs font-medium uppercase tracking-wider text-slate-400">
               Category Type
             </label>
-            <div className="grid grid-cols-2 gap-2 rounded-lg border border-slate-800/80 bg-slate-950/60 p-1">
+
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-slate-800 bg-slate-950/60 p-1">
               <button
                 type="button"
                 onClick={() => setType("expense")}
-                className={`rounded-md py-1.5 text-xs font-medium transition-all ${
+                className={`flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold capitalize transition-all ${
                   type === "expense"
-                    ? "bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-sm"
+                    ? "border border-rose-500/30 bg-rose-500/20 text-rose-400 shadow-sm"
                     : "text-slate-400 hover:text-slate-200"
                 }`}
               >
+                <ArrowDownLeft size={16} />
                 Expense
               </button>
               <button
                 type="button"
                 onClick={() => setType("income")}
-                className={`rounded-md py-1.5 text-xs font-medium transition-all ${
+                className={`flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold capitalize transition-all ${
                   type === "income"
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                    ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-400 shadow-sm"
                     : "text-slate-400 hover:text-slate-200"
                 }`}
               >
+                <ArrowUpRight size={16} />
                 Income
               </button>
             </div>
@@ -259,28 +287,43 @@ export const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
               })}
             </div>
           </div>
-          <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-800/80 pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={createMutation.isPending || updateMutation.isPending}
-              className="rounded-lg px-4 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={createMutation.isPending || updateMutation.isPending}
-              className="rounded-lg bg-emerald-500 px-5 py-2 text-xs font-semibold text-slate-950 transition-colors hover:bg-emerald-400 disabled:opacity-50"
-            >
-              {isEditMode
-                ? updateMutation.isPending
-                  ? "Saving..."
-                  : "Save Changes"
-                : createMutation.isPending
-                  ? "Creating..."
-                  : "Create Category"}
-            </button>
+          <div className="mt-4 flex items-center justify-between border-t border-slate-800/80 pt-4">
+            <div>
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isPending}
+                  className="rounded-lg bg-rose-500/80 px-5 py-2 text-xs font-semibold text-slate-950 transition-colors hover:bg-rose-400/80 disabled:opacity-50"
+                >
+                  <span>{isPending ? "Deleting..." : "Delete"}</span>
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={isPending}
+                className="rounded-lg px-4 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="rounded-lg bg-emerald-500 px-5 py-2 text-xs font-semibold text-slate-950 transition-colors hover:bg-emerald-400 disabled:opacity-50"
+              >
+                {isPending
+                  ? isEditMode
+                    ? "Saving..."
+                    : "Creating..."
+                  : isEditMode
+                    ? "Save Changes"
+                    : "Create Category"}
+              </button>
+            </div>
           </div>
         </form>
       </div>

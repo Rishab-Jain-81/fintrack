@@ -26,8 +26,8 @@ export const updateCategory = async ({ categoryId, payload }) => {
   return data;
 };
 
-export const deleteCategory = async ({ categoryId }) => {
-  const { data } = await apiClient.delete(`/categories/${categoryId}`);
+export const deleteCategory = async ({ category_id }) => {
+  const { data } = await apiClient.delete(`/categories/${category_id}`);
 
   return data;
 };
