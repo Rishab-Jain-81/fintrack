@@ -14,3 +14,12 @@ export const formatDate = (dateString) => {
     year: "numeric",
   }).format(new Date(dateString));
 };
+
+export const formatPercent = (fraction, decimals = 2) => {
+  if (fraction == null || !isFinite(fraction)) return "0%";
+  return new Intl.NumberFormat("en-US", {
+    style: "percent",
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(fraction);
+};
