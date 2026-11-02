@@ -334,7 +334,7 @@ export default function ReportsPage() {
           colorClass="text-slate-200"
         />
       </div>
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-sm backdrop-blur-sm">
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-sm backdrop-blur-sm  w-full sm:max-w-[80%] lg:max-w-[70%] mx-auto">
         <div className="mb-6 flex flex-col gap-1">
           <h2 className="text-xl font-bold tracking-tight text-slate-100">
             Expense Distribution Ledger
