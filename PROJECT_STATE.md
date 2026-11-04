@@ -73,4 +73,4 @@
 - [x] Transactions Page: Transaction records with filters, Create, Edit, and Delete features.
 - [x] Category Page: Default and Custom Categories list, Create, Edit, and Delete features.
 - [x] Reports Page: Full Report of all transactions with filter by date range, Export as CSV feature.
-- [] Budgets Page: Existing Budgets card, Create, Edit and Delete features.
+- [x] Budgets Page: Existing Budgets card, Create, Edit and Delete features.
